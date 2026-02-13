@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "shulkerlocator",
+  "version": "${version}",
+  "name": "ShulkerLocator",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/shulkerlocator/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.teashoe.shulkerlocator.client.ShulkerlocatorDataGenerator"
+    ],
+    "client": [
+      "com.teashoe.shulkerlocator.client.ShulkerlocatorClient"
+    ],
+    "main": [
+      "com.teashoe.shulkerlocator.Shulkerlocator"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "shulkerlocator.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
