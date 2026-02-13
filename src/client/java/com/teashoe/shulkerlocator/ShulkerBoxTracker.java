@@ -29,11 +29,15 @@ public class ShulkerBoxTracker {
         public final BlockPos pos;
         public final String dimensionId;
         public final long placedTime;
+        public final String color;
+        public final String name; // 추가: 셜커박스 이름
 
-        public ShulkerBoxData(BlockPos pos, String dimensionId, long placedTime) {
+        public ShulkerBoxData(BlockPos pos, String dimensionId, long placedTime, String color, String name) {
             this.pos = pos;
             this.dimensionId = dimensionId;
             this.placedTime = placedTime;
+            this.color = color;
+            this.name = name;
         }
     }
 
@@ -76,9 +80,9 @@ public class ShulkerBoxTracker {
     private String sanitizeWorldName(String worldName) {
         return worldName.replaceAll("[^a-zA-Z0-9_-]", "_");
     }
-    
-    public void addShulkerBox(BlockPos pos, String dimensionId) {
-        shulkerBoxes.put(pos, new ShulkerBoxData(pos, dimensionId, System.currentTimeMillis()));
+
+    public void addShulkerBox(BlockPos pos, String dimensionId, String color, String name) {
+        shulkerBoxes.put(pos, new ShulkerBoxData(pos, dimensionId, System.currentTimeMillis(), color, name));
         markDirty();
     }
 
@@ -97,6 +101,23 @@ public class ShulkerBoxTracker {
         for (ShulkerBoxData data : shulkerBoxes.values()) {
             if (data.dimensionId.equals(dimensionId)) {
                 result.add(data);
+            }
+        }
+        return result;
+    }
+
+    public List<ShulkerBoxData> getShulkerBoxesNearby(String dimensionId, BlockPos playerPos, int range) {
+        List<ShulkerBoxData> result = new ArrayList<>();
+        for (ShulkerBoxData data : shulkerBoxes.values()) {
+            if (data.dimensionId.equals(dimensionId)) {
+                double distance = Math.sqrt(
+                        Math.pow(data.pos.getX() - playerPos.getX(), 2) +
+                                Math.pow(data.pos.getY() - playerPos.getY(), 2) +
+                                Math.pow(data.pos.getZ() - playerPos.getZ(), 2)
+                );
+                if (distance <= range) {
+                    result.add(data);
+                }
             }
         }
         return result;
@@ -121,6 +142,10 @@ public class ShulkerBoxTracker {
                 boxNbt.putInt("z", data.pos.getZ());
                 boxNbt.putString("dimension", data.dimensionId);
                 boxNbt.putLong("time", data.placedTime);
+                boxNbt.putString("color", data.color);
+                if (data.name != null) {
+                    boxNbt.putString("name", data.name);
+                }
                 list.add(boxNbt);
             }
 
@@ -157,14 +182,16 @@ public class ShulkerBoxTracker {
                 if (boxNbt == null) continue;
 
                 BlockPos pos = new BlockPos(
-                    boxNbt.getInt("x").orElse(0),
-                    boxNbt.getInt("y").orElse(0),
-                    boxNbt.getInt("z").orElse(0)
+                        boxNbt.getInt("x").orElse(0),
+                        boxNbt.getInt("y").orElse(0),
+                        boxNbt.getInt("z").orElse(0)
                 );
                 String dimension = boxNbt.getString("dimension").orElse("");
                 long time = boxNbt.getLong("time").orElse(0L);
+                String color = boxNbt.getString("color").orElse("purple");
+                String name = boxNbt.getString("name").orElse(null);
 
-                shulkerBoxes.put(pos, new ShulkerBoxData(pos, dimension, time));
+                shulkerBoxes.put(pos, new ShulkerBoxData(pos, dimension, time, color, name));
             }
         } catch (IOException e) {
             System.err.println("Failed to load shulker box locations: " + e.getMessage());

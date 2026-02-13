@@ -3,11 +3,11 @@
   "id": "shulkerlocator",
   "version": "${version}",
   "name": "ShulkerLocator",
-  "description": "",
+  "description": "use /shulkerlocate",
   "authors": [],
   "contact": {},
   "license": "All-Rights-Reserved",
-  "icon": "assets/shulkerlocator/icon.png",
+  "icon": "assets/icon.png",
   "environment": "client",
   "entrypoints": {
     "fabric-datagen": [
